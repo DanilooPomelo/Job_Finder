@@ -9,3 +9,5 @@ class Job(Base):
     company: Mapped[str]
     location: Mapped[str]
     url:Mapped[str] = mapped_column(unique=True)
+    snippet:Mapped[str]
+    updated: Mapped[str]

@@ -15,8 +15,21 @@ def timer_time(func):
         return midle
     return wrapper
 
+async def take_joobe_j(jobs: list[dict]):
+    async with as_session() as s:
+       for job in jobs:
+        title = job['title']
+        company = job.get("company", "")
+        location = job.get("location", ""),
+        url = job.get("link"),
+        snippet = job.get("snippet", ""),
+        updated = job.get("updated", "")
+        return title,company,location, url, snippet,
+    
 
 async def save_in_db(jobs: list[dict]):
+    saved = 0
+    duplicate = 0
     async with as_session() as s:
         for job in jobs:
             
@@ -25,9 +38,19 @@ async def save_in_db(jobs: list[dict]):
                 company=job.get("company", ""),
                 location=job.get("location", ""),
                 url=job.get("link"),
-            ).on_conflict_do_nothing(index_elements=["url"])
-            await s.execute(stmt)
+                snippet=job.get("snippet", ""),
+                updated=job.get("updated", "")
+                #txt=job.get("")
+            ).on_conflict_do_nothing(index_elements=["url"]).returning(Job.id)
+            
+            result = await s.execute(stmt)
+            inserted_id = result.scalar_one_or_none()
+            if inserted_id is not None:
+                saved+=1
+            else:
+                duplicate += 1
         await s.commit()
+    print(f"Новых: {saved} | Дубликатов: {duplicate}")
 
 @timer_time
 async def get_remote():
