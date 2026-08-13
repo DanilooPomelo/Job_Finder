@@ -2,7 +2,7 @@ import selectors
 
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from backend.database import as_session,engine
-from backend.model import Job
+from backend.model import Job, CandidateProfile
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 import time
@@ -22,7 +22,20 @@ def timer_time(func):
 
 
     
-    
+async def save_user_cv(a: dict):
+    async with as_session() as s:
+        
+            stmt = pg_insert(CandidateProfile).values(
+                        main_prof=a['user_prof'] ,
+                        skills=a['user_skills'],
+                        frameworks=a['user_frameworks'],
+                        sqls=a['user_sqls'],
+                        level=a['user_level'],
+                        remote=False
+                    )
+            await s.execute(stmt)
+            await s.commit()
+
 
 
 
