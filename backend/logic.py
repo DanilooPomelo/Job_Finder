@@ -1,10 +1,13 @@
+import selectors
+
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from backend.database import as_session,engine
 from backend.model import Job
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 import time
-
+import asyncio
+loop = lambda:asyncio.SelectorEventLoop(selectors.SelectSelector())
 def timer_time(func):
     async def wrapper(*args, **kwargs):
         start = time.perf_counter()
@@ -15,19 +18,15 @@ def timer_time(func):
         return midle
     return wrapper
 
-async def take_joobe_j(jobs: list[dict]):
-    async with as_session() as s:
-       for job in jobs:
-        title = job['title']
-        company = job.get("company", "")
-        location = job.get("location", ""),
-        url = job.get("link"),
-        snippet = job.get("snippet", ""),
-        updated = job.get("updated", "")
-        return title,company,location, url, snippet,
+
+    
     
 
-async def save_in_db(jobs: list[dict]):
+
+
+    
+
+async def save_in_db(jobs):
     saved = 0
     duplicate = 0
     async with as_session() as s:
@@ -35,12 +34,12 @@ async def save_in_db(jobs: list[dict]):
             
             stmt = pg_insert(Job).values(
                 title=job["title"],
-                company=job.get("company", ""),
-                location=job.get("location", ""),
-                url=job.get("link"),
-                snippet=job.get("snippet", ""),
-                updated=job.get("updated", "")
-                #txt=job.get("")
+                company=job["company"],
+                location=job["location"],
+                url=job["url"],
+                snippet=job["snippet"],
+                updated=job["updated"],
+                source=job['source']
             ).on_conflict_do_nothing(index_elements=["url"]).returning(Job.id)
             
             result = await s.execute(stmt)
@@ -51,6 +50,40 @@ async def save_in_db(jobs: list[dict]):
                 duplicate += 1
         await s.commit()
     print(f"Новых: {saved} | Дубликатов: {duplicate}")
+
+def adzuna_adaptor(jobs):
+    adzuna = []
+    for job in jobs:
+        adzunaj = {
+            "source": "ADZUNA",
+            "title": job["title"],
+            "company":job["company"]["display_name"],
+            "location":job["location"]["display_name"],
+            "url":job["redirect_url"],
+            "snippet":job["description"],
+            "updated":job["created"]
+        }
+        adzuna.append(adzunaj)
+    asyncio.run(save_in_db(adzuna), loop_factory=loop)
+    
+def jooble_adaptor(jobs):
+    joobler = []
+    for job in jobs:
+        jobles = {
+                    "source": "JOOBLE",
+                    "title": job['title'],
+                    "company": job.get("company", ""),
+                    "location":job.get("location", ""),
+                    "url": job.get("link"),
+                    "snippet":job.get("snippet", ""),
+                    "updated": job.get("updated", "")
+        
+                }
+        joobler.append(jobles)
+    asyncio.run(save_in_db(joobler), loop_factory=loop)
+    for job in joobler:
+        print(job['title'],"---" , job['updated'])
+    
 
 @timer_time
 async def get_remote():

@@ -4,7 +4,7 @@ import httpx
 from urllib.parse import quote
 from dotenv import load_dotenv
 import os
-from backend.logic import save_in_db, get_remote
+from backend.logic import save_in_db, get_remote, jooble_adaptor,adzuna_adaptor
 import selectors
 import math
 
@@ -16,14 +16,19 @@ def paggination(tcount: float|int ):
     if tcount > 100:
         max_pages = math.ceil(tcount / 100)
         print(f"{max_pages} - страниц")
-#""""""""к примеру 43.5 страниц как задать лимит так чтобы вывод был 44 страницы
+
         
         return range(2, max_pages +1)
+    else: 
+        return range(2,2)
+        
+
 
 
 
 def get_for_search():
-    input("Search Job: ")
+    search = input("Search Job: ")
+    return search
 
 def get_adzuna():
     search = get_for_search()
@@ -53,16 +58,20 @@ def get_adzuna():
         print(response.text[:300])
     else:
         data = response.json()
-        page = 2
         job = data['results']
-        title = job['title']
-
-
-
-        #data['totalCount'][5]
-        #for job in data['jobs']:
-        #    print(job["title"], job['company'], job['url'])
-
+        adzuna_adaptor(job)
+        t_count = data['count']
+        
+        page = 2
+        for pages in paggination(t_count):
+            page =pages
+            url = f"https://api.adzuna.com/v1/api/jobs/gb/search/{page}"
+            response = httpx.get(url, params=params, headers=headers)
+            if response.status_code==200:
+                data = response.json()
+                job = data['results']
+                adzuna_adaptor(job)
+        
 
 
 
@@ -87,41 +96,23 @@ def get_jooble_jobs():
     headers= {"Content-Type": "application/json",}
 
     response = httpx.post(url, json=payload, headers=headers)
+    
+
     if response.status_code !=200:
        print(f"Error: {response.status_code}")
        print(response.text[:300])
     else:
         data = response.json()
+        jooble_adaptor(data['jobs'])
         payload['page'] = 2
         total_count = data['totalCount']
         for page in paggination(total_count):
-            
             payload["page"] = page
             response = httpx.post(url, json=payload, headers=headers)
-
-
-            
-
-
-            
             if response.status_code==200:
                     data =response.json()
-                    
-                                    
-                    asyncio.run(
-                    save_in_db(data['jobs']),
-                    loop_factory=loop
-            )
-        
+                    jooble_adaptor(data['jobs'])
 
-        #print(data["page"])
-        print(data["totalCount"])
-        #$print(data['jobs'])
-        #for job in data["jobs"]:
-        #    print(job["title"], "-", job["company"], )
-        
-    
-        print(f"saved in db")
 
 
 while True:

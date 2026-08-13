@@ -11,3 +11,4 @@ class Job(Base):
     url:Mapped[str] = mapped_column(unique=True)
     snippet:Mapped[str]
     updated: Mapped[str]
+    source: Mapped[str]
