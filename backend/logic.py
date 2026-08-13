@@ -7,7 +7,9 @@ from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 import time
 import asyncio
-loop = lambda:asyncio.SelectorEventLoop(selectors.SelectSelector())
+
+
+
 def timer_time(func):
     async def wrapper(*args, **kwargs):
         start = time.perf_counter()
@@ -51,54 +53,11 @@ async def save_in_db(jobs):
         await s.commit()
     print(f"Новых: {saved} | Дубликатов: {duplicate}")
 
-def arbeitnow_adaptor(jobs):
-    arbeit = []
-    for job in jobs:
-        arbe = {
-           "source": "ARBEITNOW",
-            "title": job["title"],
-            "company":job["company_name"],
-            "location":job["remote"],
-            "url":job["url"],
-            "snippet":job["description"],
-            "updated":job["created_at"] 
-        }
-        arbeit.append(arbe)
-    asyncio.run(save_in_db(arbeit), loop_factory=loop)
 
 
-def adzuna_adaptor(jobs):
-    adzuna = []
-    for job in jobs:
-        adzunaj = {
-            "source": "ADZUNA",
-            "title": job["title"],
-            "company":job["company"]["display_name"],
-            "location":job["location"]["display_name"],
-            "url":job["redirect_url"],
-            "snippet":job["description"],
-            "updated":job["created"]
-        }
-        adzuna.append(adzunaj)
-    asyncio.run(save_in_db(adzuna), loop_factory=loop)
+
     
-def jooble_adaptor(jobs):
-    joobler = []
-    for job in jobs:
-        jobles = {
-                    "source": "JOOBLE",
-                    "title": job['title'],
-                    "company": job.get("company", ""),
-                    "location":job.get("location", ""),
-                    "url": job.get("link"),
-                    "snippet":job.get("snippet", ""),
-                    "updated": job.get("updated", "")
-        
-                }
-        joobler.append(jobles)
-    asyncio.run(save_in_db(joobler), loop_factory=loop)
-    for job in joobler:
-        print(job['title'],"---" , job['updated'])
+
     
 #сделать все через список без подсказок все верно расстваить! после чего можно делать вызов через бота! 
 @timer_time
