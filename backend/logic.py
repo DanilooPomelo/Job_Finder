@@ -51,6 +51,22 @@ async def save_in_db(jobs):
         await s.commit()
     print(f"Новых: {saved} | Дубликатов: {duplicate}")
 
+def arbeitnow_adaptor(jobs):
+    arbeit = []
+    for job in jobs:
+        arbe = {
+           "source": "ARBEITNOW",
+            "title": job["title"],
+            "company":job["company_name"],
+            "location":job["remote"],
+            "url":job["url"],
+            "snippet":job["description"],
+            "updated":job["created_at"] 
+        }
+        arbeit.append(arbe)
+    asyncio.run(save_in_db(arbeit), loop_factory=loop)
+
+
 def adzuna_adaptor(jobs):
     adzuna = []
     for job in jobs:
@@ -84,12 +100,23 @@ def jooble_adaptor(jobs):
     for job in joobler:
         print(job['title'],"---" , job['updated'])
     
-
+#сделать все через список без подсказок все верно расстваить! после чего можно делать вызов через бота! 
 @timer_time
 async def get_remote():
     async with as_session() as s:
+        remote_j = []
         q = select(Job)
         jobs = (await s.scalars(q)).all()
         for job in jobs:
             if job.location == "Remote":
-                print(f"Title:{job.title} --- {job.url}")
+                if job.snippet is None:
+                    job.snippet = ""
+                
+                snippet = job.snippet[:125]
+                remote_j.append(f"Name: {job.title} --- Description: {snippet} ===> LINK:{job.url}")
+        
+
+            
+
+        return (remote_j)
+    

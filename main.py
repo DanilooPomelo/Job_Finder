@@ -4,7 +4,7 @@ import httpx
 from urllib.parse import quote
 from dotenv import load_dotenv
 import os
-from backend.logic import save_in_db, get_remote, jooble_adaptor,adzuna_adaptor
+from backend.logic import save_in_db, get_remote, jooble_adaptor,adzuna_adaptor,arbeitnow_adaptor
 import selectors
 import math
 
@@ -29,6 +29,21 @@ def paggination(tcount: float|int ):
 def get_for_search():
     search = input("Search Job: ")
     return search
+
+
+def get_arbeitnow():
+    url = "https://www.arbeitnow.com/api/job-board-api"
+
+    response = httpx.get(url)
+
+    if response.status_code != 200:
+        print(f"Error: {response.status_code}")
+        print(response.text[:300])
+    else:
+        data = response.json()
+        job = data['data']
+        arbeitnow_adaptor(job)
+
 
 def get_adzuna():
     search = get_for_search()
@@ -114,12 +129,14 @@ def get_jooble_jobs():
                     jooble_adaptor(data['jobs'])
 
 
-
-while True:
-    choice = int(input("choose: "))
-    if choice == 1:
-        get_jooble_jobs()
-    elif choice ==2:
-        asyncio.run(get_remote(),loop_factory=loop)
-    elif choice == 3:
-        get_adzuna()
+if __name__ == "__main__":
+    while True:
+        choice = int(input("choose: "))
+        if choice == 1:
+           get_jooble_jobs()
+        elif choice ==2:
+             asyncio.run(get_remote(),loop_factory=loop)
+        elif choice == 3:
+            get_adzuna()
+        elif choice ==4:
+            get_arbeitnow()
