@@ -4,6 +4,8 @@ import asyncio
 from uni_func import loop, paggination, get_for_search
 from backend.logic import save_in_db
 from dotenv import load_dotenv
+from datetime import datetime
+import time
 
 load_dotenv()
 
@@ -19,9 +21,11 @@ def get_jooble_jobs():
 
     payload = {
     "keywords": search,
+    #"keywords": f"{search} AND (\"1 day ago\" OR \"24 hours ago\" OR \"today\")",
     "location": "",
     "page": 1,
-    "ResultOnPage": 100
+    "ResultOnPage": 100,
+    
 }
 
     headers= {"Content-Type": "application/json",}
@@ -43,12 +47,14 @@ def get_jooble_jobs():
             if response.status_code==200:
                     data =response.json()
                     jooble_adaptor(data['jobs'])
-
+                    
 
 
 def jooble_adaptor(jobs):
     joobler = []
     for job in jobs:
+        norm_d = datetime.fromisoformat(job.get("updated", "")).date()
+        
         jobles = {
                     "source": "JOOBLE",
                     "title": job['title'],
@@ -56,7 +62,7 @@ def jooble_adaptor(jobs):
                     "location":job.get("location", ""),
                     "url": job.get("link"),
                     "snippet":job.get("snippet", ""),
-                    "updated": job.get("updated", "")
+                    "updated": norm_d
         
                 }
         joobler.append(jobles)

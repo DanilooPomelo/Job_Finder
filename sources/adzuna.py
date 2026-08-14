@@ -4,6 +4,7 @@ import asyncio
 from uni_func import loop, paggination, get_for_search
 from backend.logic import save_in_db
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -13,14 +14,15 @@ def adzuna_adaptor(jobs):
     adzuna = []
     for job in jobs:
         company = job.get('company') or {}
+        norm_d = datetime.fromisoformat(job['created']).date()
         adzunaj = {
             "source": "ADZUNA",
             "title": job["title"],
-            "company":company.get("display_name"),
+            "company":company.get("display_name") or {},
             "location":job["location"]["display_name"],
             "url":job["redirect_url"],
             "snippet":job["description"],
-            "updated":job["created"]
+            "updated":norm_d
         }
         adzuna.append(adzunaj)
     asyncio.run(save_in_db(adzuna), loop_factory=loop)

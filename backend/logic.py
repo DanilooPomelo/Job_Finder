@@ -6,7 +6,9 @@ from backend.model import Job, CandidateProfile
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 import time
+from datetime import datetime
 import asyncio
+
 
 
 
@@ -46,6 +48,7 @@ async def save_in_db(jobs):
     duplicate = 0
     async with as_session() as s:
         for job in jobs:
+            now = datetime.now().date()
             
             stmt = pg_insert(Job).values(
                 title=job["title"],
@@ -54,8 +57,10 @@ async def save_in_db(jobs):
                 url=job["url"],
                 snippet=job["snippet"],
                 updated=job["updated"],
-                source=job['source']
-            ).on_conflict_do_nothing(index_elements=["url"]).returning(Job.id)
+                source=job['source'],
+                first_seen=now,
+                last_seen=now
+            ).on_conflict_do_update(index_elements=["url"],set_={"last_seen":now})
             
             result = await s.execute(stmt)
             inserted_id = result.scalar_one_or_none()
@@ -71,7 +76,52 @@ async def save_in_db(jobs):
 
     
 
+async def get_new_vac():
+    async with as_session() as s:
+        new_vac = []
+        q = select(Job)
+        jobs = (await s.scalars(q)).all()
+        now = datetime.now().date()
+        for job in jobs:
+            print(
+                job.id,
+                job.first_seen,
+                type(job.first_seen),
+                job.first_seen == now
+            )
+            if job.first_seen == now:
+                snp =job.snippet[:125]
+
+                new_vac.append(f"Name: {job.title} --- Description: {snp} ===> LINK:{job.url}")
+        print("NEW VACANCIES:", len(new_vac))
+        return new_vac
+
+async def get_today_vac():
+    async with as_session() as s:
+        new_vac = []
+        q = select(Job)
+        jobs = (await s.scalars(q)).all()
+        now = datetime.now().date()
+        for job in jobs:
+            print(
+                job.id,
+                job.first_seen,
+                type(job.first_seen),
+                job.first_seen == now
+            )
+            if job.first_seen == job.updated:
+                snp =job.snippet[:125]
+                
+                new_vac.append(f"Name: {job.title} --- Description: {snp} ===> LINK:{job.url}")
+        print("NEW VACANCIES:", len(new_vac))
+        return new_vac
+            
+
+
+
     
+     
+
 #сделать все через список без подсказок все верно расстваить! после чего можно делать вызов через бота! 
 @timer_time
 async def get_remote():
@@ -91,4 +141,4 @@ async def get_remote():
             
 
         return (remote_j)
-    
+

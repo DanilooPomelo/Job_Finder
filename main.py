@@ -1,11 +1,9 @@
 import asyncio
-from backend.logic import  get_remote
+from backend.logic import  get_remote, get_new_vac
 from sources.adzuna import  get_adzuna
 from sources.arbeitnow import get_arbeitnow
 from sources.jooble import get_jooble_jobs
 from uni_func import loop
-
-
 
 
 
@@ -24,3 +22,6 @@ if __name__ == "__main__":
             get_adzuna()
         elif choice ==4:
             get_arbeitnow()
+        elif choice == 5:
+            asyncio.run(get_new_vac(),loop_factory=loop)
+        

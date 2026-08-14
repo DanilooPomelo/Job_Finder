@@ -17,6 +17,10 @@ inline_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(
                 text="get remote Vacancy",
                 callback_data="remotevacancy"
+            ),
+            InlineKeyboardButton(
+                text="Today Vacancy",
+                callback_data="get_today"
             )
 
         ]

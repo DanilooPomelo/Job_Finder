@@ -4,6 +4,7 @@ import asyncio
 from uni_func import loop
 from backend.logic import save_in_db
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -23,10 +24,16 @@ def get_arbeitnow():
         job = data['data']
         arbeitnow_adaptor(job)
 
+def arbeit_norm_time(jobs):
+    for job in jobs:
+        pass
+         
 
 def arbeitnow_adaptor(jobs):
     arbeit = []
     for job in jobs:
+        norm_data = datetime.fromtimestamp(job['created_at']).date()
+        
         arbe = {
            "source": "ARBEITNOW",
             "title": job["title"],
@@ -34,7 +41,7 @@ def arbeitnow_adaptor(jobs):
             "location":job["remote"],
             "url":job["url"],
             "snippet":job["description"],
-            "updated":job["created_at"] 
+            "updated":norm_data
         }
         arbeit.append(arbe)
     asyncio.run(save_in_db(arbeit), loop_factory=loop)
