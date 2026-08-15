@@ -32,6 +32,7 @@ async def adzuna_adaptor(jobs):
 
 
 async def get_adzuna(search):
+        print("ADZUNA START")
     
     #search = get_for_search()
         page = 1
@@ -69,3 +70,4 @@ async def get_adzuna(search):
                         data = response.json()
                         job = data['results']
                         await adzuna_adaptor(job)
+        print("ADZUNA DONE")                

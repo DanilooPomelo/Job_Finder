@@ -8,7 +8,7 @@ from datetime import datetime
 from backend.database import as_session
 
 async def get_jobs_remotejobs(search):
-    
+        
     #search = get_for_search()
 
 
@@ -35,6 +35,7 @@ async def get_jobs_remotejobs(search):
                     if response.status_code == 200:
                         data =response.json()
                         await adapt_remote(data['data'])
+                       
 
 
 async def adapt_remote(jobs):

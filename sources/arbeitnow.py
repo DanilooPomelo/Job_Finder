@@ -13,6 +13,7 @@ load_dotenv()
 
 
 async def get_arbeitnow():
+        print("ARBEIT START")
     
         url = "https://www.arbeitnow.com/api/job-board-api"
         async with httpx.AsyncClient() as c:
@@ -25,6 +26,7 @@ async def get_arbeitnow():
                 data = response.json()
                 job = data['data']
                 await arbeitnow_adaptor(job)
+        print("ARBEIT DONE")
 
 
          

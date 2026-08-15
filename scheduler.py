@@ -45,7 +45,7 @@ async def autostart():
         start,
         CronTrigger(
             hour="8,20,18,19",
-            minute=28,
+            minute=46,
             timezone="Europe/Chisinau"
         )
     )

@@ -14,6 +14,7 @@ load_dotenv()
 
 
 async def get_jobs_himalay(search):
+        print("HIMALAY START")
     
     #search = get_for_search()
     #encode_search = quote(search)
@@ -44,6 +45,7 @@ async def get_jobs_himalay(search):
                     if response.status_code==200:
                         data = response.json()
                         await himalays_adapter(data['jobs'])
+        print("HIMALAY DONE")
     
 
 

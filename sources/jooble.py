@@ -13,6 +13,7 @@ load_dotenv()
 
 
 async def get_jooble_jobs(search):
+        print("JOOBLE START")
     
         key = os.getenv("JOOBLE_API_KEY")
         url = f"https://jooble.org/api/{key}"
@@ -49,7 +50,7 @@ async def get_jooble_jobs(search):
                     if response.status_code==200:
                             data =response.json()
                             await jooble_adaptor(data['jobs'])
-                    
+        print("JOOBLE DONE")            
 
 
 async def jooble_adaptor(jobs):
