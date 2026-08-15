@@ -109,7 +109,7 @@ async def get_today_vac():
                 type(job.first_seen),
                 job.first_seen == now
             )
-            if job.first_seen == job.updated:
+            if job.updated == now:
                 snp =job.snippet[:125]
                 
                 new_vac.append(f"Name: {job.title} --- Description: {snp} ===> LINK:{job.url}")

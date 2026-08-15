@@ -62,7 +62,7 @@ def get_adzuna():
         t_count = data['count']
         
         page = 2
-        for pages in paggination(t_count):
+        for pages in paggination(t_count, 100):
             page =pages
             url = f"https://api.adzuna.com/v1/api/jobs/gb/search/{page}"
             response = httpx.get(url, params=params, headers=headers)

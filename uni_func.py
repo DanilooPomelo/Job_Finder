@@ -4,10 +4,10 @@ import math
 
 loop = lambda:asyncio.SelectorEventLoop(selectors.SelectSelector())
 
-def paggination(tcount: float|int ):
+def paggination(tcount: float|int , a: int):
     
-    if tcount > 100:
-        max_pages = math.ceil(tcount / 100)
+    if tcount > a:
+        max_pages = math.ceil(tcount / a)
         print(f"{max_pages} - страниц")
 
         

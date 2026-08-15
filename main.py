@@ -4,12 +4,13 @@ from sources.adzuna import  get_adzuna
 from sources.arbeitnow import get_arbeitnow
 from sources.jooble import get_jooble_jobs
 from uni_func import loop
+from sources.hinalayas import get_jobs_himalay
+from sources.remotejobs import get_jobs_remotejobs
 
 
 
 
         
-
 
 if __name__ == "__main__":
     while True:
@@ -24,4 +25,9 @@ if __name__ == "__main__":
             get_arbeitnow()
         elif choice == 5:
             asyncio.run(get_new_vac(),loop_factory=loop)
+        elif choice == 6:
+            get_jobs_himalay()
+        elif choice == 7:
+            get_jobs_remotejobs()
+
         

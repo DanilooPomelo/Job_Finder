@@ -41,7 +41,7 @@ def get_jooble_jobs():
         jooble_adaptor(data['jobs'])
         payload['page'] = 2
         total_count = data['totalCount']
-        for page in paggination(total_count):
+        for page in paggination(total_count, 100):
             payload["page"] = page
             response = httpx.post(url, json=payload, headers=headers)
             if response.status_code==200:
