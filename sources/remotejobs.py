@@ -5,41 +5,44 @@ from uni_func import loop, get_for_search, paggination
 from backend.logic import save_in_db
 from dotenv import load_dotenv
 from datetime import datetime
+from backend.database import as_session
 
-def get_jobs_remotejobs():
-    search = get_for_search()
+async def get_jobs_remotejobs(search):
+    
+    #search = get_for_search()
 
 
-    url = "https://remotejobs.org/api/v1/jobs"
+        url = "https://remotejobs.org/api/v1/jobs"
 
-    params = {
+        params = {
         "q": search,
         "limit": 50,
         "page": 1
     }
+        async with httpx.AsyncClient() as c:
+            response =await c.get(url, params=params)
+            if response.status_code !=200:
+                print(f"Error: {response.status_code}")
+                print(response.text[:300])
+            else:
+                data = response.json()
+                await adapt_remote(data['data'])
+                params['page'] = 2
+                t_count = data['pagination']['total']
+                for page in paggination(t_count, 50):
+                    params["page"] = page
+                    response =await c.get(url, params=params)
+                    if response.status_code == 200:
+                        data =response.json()
+                        await adapt_remote(data['data'])
 
-    response = httpx.get(url, params=params)
-    if response.status_code !=200:
-        print(f"Error: {response.status_code}")
-        print(response.text[:300])
-    else:
-        data = response.json()
-        adapt_remote(data['data'])
-        params['page'] = 2
-        t_count = data['pagination']['total']
-        for page in paggination(t_count, 50):
-            params["page"] = page
-            response = httpx.get(url, params=params)
-            if response.status_code == 200:
-                data =response.json()
-                adapt_remote(data['data'])
 
-
-def adapt_remote(jobs):
-    remotes = []
-    for job in jobs:
-        norm_d = datetime.fromisoformat(job['posted_at']).date()
-        remote = {
+async def adapt_remote(jobs):
+    
+        remotes = []
+        for job in jobs:
+            norm_d = datetime.fromisoformat(job['posted_at']).date()
+            remote = {
             "source": "REMJOBS",
             "title": job['title'],
             "company": job['company']['name'],
@@ -49,8 +52,8 @@ def adapt_remote(jobs):
             "updated": norm_d
                     
         }
-        remotes.append(remote)
-    asyncio.run(save_in_db(remotes), loop_factory=loop)
+            remotes.append(remote)
+        await save_in_db(remotes)
 
     
     

@@ -21,6 +21,10 @@ inline_kb = InlineKeyboardMarkup(
             InlineKeyboardButton(
                 text="Today Vacancy",
                 callback_data="get_today"
+            ),
+            InlineKeyboardButton(
+                text="Get last 3-dayd",
+                callback_data="last_3_days_vac"
             )
 
         ]
