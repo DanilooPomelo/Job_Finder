@@ -1,6 +1,4 @@
 #from apscheduler import AsyncScheduler
-
-
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 from apscheduler.triggers.cron import CronTrigger
@@ -10,8 +8,17 @@ from sources.jooble import get_jooble_jobs
 from uni_func import loop,get_for_search
 from sources.hinalayas import get_jobs_himalay
 from sources.remotejobs import get_jobs_remotejobs
+from sqlalchemy import text
+from backend.database import as_session
 
 async def start():
+#only for my self use becuase DB Neon is Free and needed for out sleep
+    async with as_session() as s:
+        await s.execute(text("SELECT 1"))
+    await asyncio.sleep(30)
+########################################################################
+
+
     searcher = ["Junior Python Developer",
     "Junior Python Backend Developer",
     "Junior Backend Developer Python",
@@ -44,8 +51,8 @@ async def autostart():
     scheduler.add_job(
         start,
         CronTrigger(
-            hour="8,20,18,19",
-            minute=46,
+            hour="8,20,13,12,15",
+            minute=41,
             timezone="Europe/Chisinau"
         )
     )
@@ -54,5 +61,5 @@ async def autostart():
     await (asyncio.sleep(99999999999))
     
     
-asyncio.run(autostart(), loop_factory=loop)
+#asyncio.run(autostart(), loop_factory=loop)
 

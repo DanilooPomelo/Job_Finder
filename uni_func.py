@@ -16,6 +16,10 @@ def paggination(tcount: float|int , a: int):
         return range(2,2)
 
 
+def jpagination():
+    max_page = 15
+    return range(2, max_page)
+
 def get_for_search():
     search = input("Search Job: ")
     return search

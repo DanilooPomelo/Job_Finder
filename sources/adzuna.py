@@ -32,42 +32,45 @@ async def adzuna_adaptor(jobs):
 
 
 async def get_adzuna(search):
-        print("ADZUNA START")
+        try:
+            print("ADZUNA START")
     
     #search = get_for_search()
-        page = 1
-        key = os.getenv("ADZUNA_API_KEY")
-        app_id = os.getenv("ADZUNA_ID")
-        url = f"https://api.adzuna.com/v1/api/jobs/gb/search/{page}"
+            page = 1
+            key = os.getenv("ADZUNA_API_KEY")
+            app_id = os.getenv("ADZUNA_ID")
+            url = f"https://api.adzuna.com/v1/api/jobs/gb/search/{page}"
 
-        params = {
+            params = {
     "app_id": app_id,
     "app_key": key,
     "results_per_page": 100,
     "what": f"{search}",
 }
 
-        headers = {
+            headers = {
     "Accept": "application/json"
     }
-        async with httpx.AsyncClient() as c:
-            response =await c.get(url,params=params,headers=headers)
-            if response.status_code !=200:
-                print(f"Error: {response.status_code}")
-                print(response.text[:300])
-            else:
-                data = response.json()
-                job = data['results']
-                await adzuna_adaptor(job)
-                t_count = data['count']
+            async with httpx.AsyncClient() as c:
+                response =await c.get(url,params=params,headers=headers)
+                if response.status_code !=200:
+                    print(f"Error: {response.status_code}")
+                    print(response.text[:300])
+                else:
+                    data = response.json()
+                    job = data['results']
+                    await adzuna_adaptor(job)
+                    t_count = data['count']
         
-                page = 2
-                for pages in paggination(t_count, 100):
-                    page =pages
-                    url = f"https://api.adzuna.com/v1/api/jobs/gb/search/{page}"
-                    response = await c.get(url, params=params, headers=headers)
-                    if response.status_code==200:
-                        data = response.json()
-                        job = data['results']
-                        await adzuna_adaptor(job)
-        print("ADZUNA DONE")                
+                    page = 2
+                    for pages in paggination(t_count, 100):
+                        page =pages
+                        url = f"https://api.adzuna.com/v1/api/jobs/gb/search/{page}"
+                        response = await c.get(url, params=params, headers=headers)
+                        if response.status_code==200:
+                            data = response.json()
+                            job = data['results']
+                            await adzuna_adaptor(job)
+            print("ADZUNA DONE") 
+        except Exception as e:
+            print(f"ADZUNA error {e}")

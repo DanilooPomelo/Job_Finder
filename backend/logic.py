@@ -41,7 +41,11 @@ async def save_user_cv(a: dict):
 
 
 
-    
+async def get_pg(result, page):
+    start = (page - 1) * 5
+    end = page * 5
+
+    return result[start:end]
 
 async def save_in_db(jobs):
     saved = 0
@@ -120,12 +124,12 @@ async def get_last3():
         now = datetime.now().date()
         treed = now - timedelta(days=3)
         last3 = []
-        q = select(Job)
+        q = select(Job).where(Job.updated >= treed)
         jobs = (await s.scalars(q)).all()
         for job in jobs:
             snp = job.snippet[:125]
-            if job.updated >= treed:
-                last3.append(f"Name: {job.title}\n\n---->>>{snp}\n\n---->{job.updated}\n\n------>>>{job.url}")
+            
+            last3.append(f"Name: {job.title}\n\n---->>>{snp}\n\n---->{job.updated}\n\n------>>>{job.url}")
         return last3
 
 
@@ -161,29 +165,26 @@ async def get_new_vac():
     }
     async with as_session() as s:
         new_vac = []
-        
-        q = select(Job)
-        jobs = (await s.scalars(q)).all()
         now = datetime.now().date()
+        q = select(Job).where(Job.updated == now)
+        jobs = (await s.scalars(q)).all()
+        
         for job in jobs:
             text = f"{job.title}, {job.snippet}".lower()
             score = 0
             
-            if job.updated == now:
-                snp =job.snippet[:125]
-                for word, points in positive_words.items():
-                    if word in text:
-                        score += points
-                for word, points in negative_words.items():
-                    if word in text:
-                        score += points
-
-                #new_vac.append(f"Name: {job.title} --- Description: {snp} ===> LINK:{job.url}:::SCORE: {score}")
-                new_vac.append((score, job.title, job.url, snp))
-                new_vac = [job for job in new_vac if job[0]>= 4]
+            snp =job.snippet[:250]
+            for word, points in positive_words.items():
+                if word in text:
+                    score += points
+            for word, points in negative_words.items():
+                if word in text:
+                    score += points
+            new_vac.append((score, job.title, job.url, snp))
+            new_vac = [job for job in new_vac if job[0]>= 5]
         resalt = []
         for score, title, url, snp in new_vac:
-            resalt.append(f"Name: {title} --- Description: {snp} ===> LINK:{url} ::: SCORE: {score}")
+            resalt.append(f"Name: {title} --- \n\n Description: {snp} ===> \n\nLINK:{url} :::\n\n SCORE: {score}")
 
             
             

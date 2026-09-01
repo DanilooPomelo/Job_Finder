@@ -1,7 +1,7 @@
 import os
 import httpx
 import asyncio
-from uni_func import loop, paggination, get_for_search
+from uni_func import loop, paggination, get_for_search, jpagination
 from backend.logic import save_in_db
 from dotenv import load_dotenv
 from datetime import datetime
@@ -13,6 +13,7 @@ load_dotenv()
 
 
 async def get_jooble_jobs(search):
+    try:
         print("JOOBLE START")
     
         key = os.getenv("JOOBLE_API_KEY")
@@ -44,13 +45,15 @@ async def get_jooble_jobs(search):
                 await jooble_adaptor(data['jobs'])
                 payload['page'] = 2
                 total_count = data['totalCount']
-                for page in paggination(total_count, 100):
+                for page in jpagination():
                     payload["page"] = page
                     response = await c.post(url, json=payload, headers=headers)
                     if response.status_code==200:
                             data =response.json()
                             await jooble_adaptor(data['jobs'])
-        print("JOOBLE DONE")            
+        print("JOOBLE DONE")    
+    except Exception as e:
+         print(f"JOOBLE ERROR {e}")        
 
 
 async def jooble_adaptor(jobs):

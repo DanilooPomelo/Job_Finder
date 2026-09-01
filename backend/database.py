@@ -11,7 +11,7 @@ if DATABASE_URL is None:
     raise ValueError("ERROR")
     
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 as_session= async_sessionmaker(engine)
 
 class Base(DeclarativeBase):

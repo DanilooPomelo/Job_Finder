@@ -13,6 +13,7 @@ load_dotenv()
 
 
 async def get_arbeitnow():
+    try:
         print("ARBEIT START")
     
         url = "https://www.arbeitnow.com/api/job-board-api"
@@ -27,6 +28,8 @@ async def get_arbeitnow():
                 job = data['data']
                 await arbeitnow_adaptor(job)
         print("ARBEIT DONE")
+    except Exception as e:
+         print(f"ARBEIT ERROR {e}")
 
 
          

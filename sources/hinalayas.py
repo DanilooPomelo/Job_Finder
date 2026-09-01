@@ -14,6 +14,7 @@ load_dotenv()
 
 
 async def get_jobs_himalay(search):
+    try:
         print("HIMALAY START")
     
     #search = get_for_search()
@@ -46,6 +47,8 @@ async def get_jobs_himalay(search):
                         data = response.json()
                         await himalays_adapter(data['jobs'])
         print("HIMALAY DONE")
+    except Exception as e:
+        print(f"HIMALAYS ERROR {e}")
     
 
 
