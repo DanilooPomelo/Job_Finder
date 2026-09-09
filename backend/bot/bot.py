@@ -116,5 +116,3 @@ async def start_btn_rem(callback: CallbackQuery):
 async def main():
     dp.include_router(router)
     await dp.start_polling(bot)
-#if __name__ == "__main__":
-    #asyncio.run(main(),loop_factory=loop)

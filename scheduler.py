@@ -5,11 +5,12 @@ from apscheduler.triggers.cron import CronTrigger
 from sources.adzuna import  get_adzuna
 from sources.arbeitnow import get_arbeitnow
 from sources.jooble import get_jooble_jobs
-from uni_func import loop,get_for_search
+from uni_func import loop,get_for_search, timeouts_src
 from sources.hinalayas import get_jobs_himalay
 from sources.remotejobs import get_jobs_remotejobs
 from sqlalchemy import text
 from backend.database import as_session
+
 
 async def start():
 #only for my self use becuase DB Neon is Free and needed for out sleep
@@ -35,11 +36,12 @@ async def start():
     "Python Django Developer",
     "Junior Software Engineer Python",]
     for s in searcher:
-        await asyncio.gather(get_jobs_remotejobs(s),
-        get_jobs_himalay(s),
-        get_adzuna(s),
-        get_arbeitnow(),
-        get_jooble_jobs(s))
+        await asyncio.gather(
+            timeouts_src(get_jobs_remotejobs,s),
+            timeouts_src(get_jobs_himalay,s),
+            timeouts_src(get_adzuna,s),
+            timeouts_src(get_arbeitnow),
+            timeouts_src(get_jooble_jobs,s))
 
         await asyncio.sleep(120)
         
@@ -52,7 +54,7 @@ async def autostart():
         start,
         CronTrigger(
             hour="8,20,13,12,15",
-            minute=41,
+            minute=00,
             timezone="Europe/Chisinau"
         )
     )

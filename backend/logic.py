@@ -202,7 +202,7 @@ async def get_new_vac():
     
      
 
-#сделать все через список без подсказок все верно расстваить! после чего можно делать вызов через бота! 
+
 @timer_time
 async def get_remote():
     async with as_session() as s:

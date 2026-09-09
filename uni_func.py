@@ -1,6 +1,7 @@
 import selectors
 import asyncio
 import math
+import time
 
 loop = lambda:asyncio.SelectorEventLoop(selectors.SelectSelector())
 
@@ -23,3 +24,18 @@ def jpagination():
 def get_for_search():
     search = input("Search Job: ")
     return search
+
+async def timeouts_src(func, *args, **kwargs):
+    timeouts = [2,4,6]
+    for t in timeouts:
+
+        try:
+            result = await func(*args, **kwargs)
+            return result
+    
+        except Exception as e:
+            await asyncio.sleep(t)
+        
+    print(f"Error - {e}")
+
+

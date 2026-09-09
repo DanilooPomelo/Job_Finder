@@ -43,14 +43,17 @@ async def get_jooble_jobs(search):
             else:
                 data = response.json()
                 await jooble_adaptor(data['jobs'])
-                payload['page'] = 2
+                #payload['page'] = 2
                 total_count = data['totalCount']
-                for page in jpagination():
+                for page in paggination(total_count, 100):
                     payload["page"] = page
                     response = await c.post(url, json=payload, headers=headers)
                     if response.status_code==200:
                             data =response.json()
+                            if not data['jobs']:
+                                break
                             await jooble_adaptor(data['jobs'])
+                            
         print("JOOBLE DONE")    
     except Exception as e:
          print(f"JOOBLE ERROR {e}")        
