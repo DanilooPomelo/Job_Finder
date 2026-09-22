@@ -74,6 +74,21 @@ async def tdvac(message : Message):
             await message.answer(vac)
     
 
+#@router.message(F.trxt == "New vacancies")
+#async def nvac(message:Message):
+#    async with httpx.AsyncClient() as cl:
+#        resp = await cl.get("http://127.0.0.1:8000/jobs")
+#    res = resp.json
+#    total_pages = math.ceil(len(res)/5)
+#    page_num = 1
+#    page = await get_pg(res, page_num)
+#    for i,vac in enumerate(page):
+#        if i == len(page) -1:
+#            await message.answer(vac, reply_markup=pagination_keyboard(page_num, total_pages))
+#        else:
+#            await message.answer(vac)
+
+
 
 @dp.message(Command("GET"))
 async def get_remotes(messege):

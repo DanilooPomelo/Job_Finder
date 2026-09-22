@@ -54,8 +54,10 @@ async def get_adzuna(search):
             async with httpx.AsyncClient() as c:
                 response =await c.get(url,params=params,headers=headers)
                 if response.status_code !=200:
+                    er = response.status_code
                     print(f"Error: {response.status_code}")
                     print(response.text[:300])
+                    return er
                 else:
                     data = response.json()
                     job = data['results']

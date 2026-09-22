@@ -11,6 +11,7 @@ def keyboardall():
     reply_kb = ReplyKeyboardBuilder()
     reply_kb.add(
         types.KeyboardButton(text="Today Vacancy"),
+        types.KeyboardButton(text="New vacancies"),
 
 )
     reply_kb.adjust(2)

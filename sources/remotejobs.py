@@ -25,6 +25,8 @@ async def get_jobs_remotejobs(search):
             if response.status_code !=200:
                 print(f"Error: {response.status_code}")
                 print(response.text[:300])
+                er = response.status_code
+                return er
             else:
                 data = response.json()
                 await adapt_remote(data['data'])

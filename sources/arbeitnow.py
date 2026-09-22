@@ -23,6 +23,8 @@ async def get_arbeitnow():
             if response.status_code != 200:
                 print(f"Error: {response.status_code}")
                 print(response.text[:300])
+                er = response.status_code
+                return er
             else:
                 data = response.json()
                 job = data['data']

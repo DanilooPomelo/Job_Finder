@@ -13,3 +13,7 @@ app = FastAPI()
 async def get_tj(db: Session = Depends(get_db)):
     result = await get_new_vac()
     return result
+
+#@app.get("/newjobs")
+#async def get_nj(db: Session = Depends(get_db)):
+#    res = await

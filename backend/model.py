@@ -1,6 +1,6 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.database import Base
-from sqlalchemy import Date
+from sqlalchemy import Date , ForeignKey
 from datetime import date
 
 class Job(Base):
@@ -28,3 +28,17 @@ class CandidateProfile(Base):
     sqls:Mapped[str]
     level:Mapped[int]
     remote:Mapped[bool]
+
+
+class AiJob(Base):
+    __tablename__ = "job_ai_reviews"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[int] = mapped_column(ForeignKey("Jobs.id"), unique=True)
+    status: Mapped[str]
+    match_score: Mapped[int] = mapped_column(nullable=True)
+    reason: Mapped[str]= mapped_column(nullable=True)
+    missingskills: Mapped[str] = mapped_column(nullable=True)
+    model: Mapped[str]= mapped_column(nullable=True)
+    ai_checked_at: Mapped[date]=mapped_column(Date,nullable=True)
+
+    job: Mapped["Job"] = relationship()

@@ -41,7 +41,8 @@ async def start():
             timeouts_src(get_jobs_himalay,s),
             timeouts_src(get_adzuna,s),
             timeouts_src(get_arbeitnow),
-            timeouts_src(get_jooble_jobs,s))
+            timeouts_src(get_jooble_jobs,s)
+            )
 
         await asyncio.sleep(120)
         
@@ -53,8 +54,8 @@ async def autostart():
     scheduler.add_job(
         start,
         CronTrigger(
-            hour="8,20,13,12,15",
-            minute=00,
+            hour="8,10,20,13,12,11,15",
+            minute=7,
             timezone="Europe/Chisinau"
         )
     )

@@ -40,6 +40,8 @@ async def get_jooble_jobs(search):
             if response.status_code !=200:
                 print(f"Error: {response.status_code}")
                 print(response.text[:300])
+                er = response.status_code
+                return er
             else:
                 data = response.json()
                 await jooble_adaptor(data['jobs'])
