@@ -23,6 +23,7 @@ def timer_time(func):
         print(f"function result in {end - start:.4f} seconds")
         return midle
     return wrapper
+
 async def save_user_cv(a: dict):
     async with as_session() as s:
         
@@ -52,8 +53,7 @@ async def save_in_ai_table(tname):
             await s.execute(stmt)
         await s.commit()         
 async def save_in_db(jobs):
-    saved = 0
-    duplicate = 0
+    
     async with as_session() as s:
         for job in jobs:
             now = datetime.now().date()
@@ -70,52 +70,14 @@ async def save_in_db(jobs):
                 last_seen=now
             ).on_conflict_do_update(index_elements=["url"],set_={"last_seen":now})
             
-            result = await s.execute(stmt)
-            inserted_id = result.scalar_one_or_none()
-            if inserted_id is not None:
-                saved+=1
-            else:
-                duplicate += 1
+            await s.execute(stmt)
+            
         await s.commit()
-    print(f"Новых: {saved} | Дубликатов: {duplicate}")
-async def sort_by_need():
-    async with as_session() as s:
-        
-        sorted = []
-        
-        positive_words = {
-    "python": 4,
-    "backend": 4,
-    "junior": 4,
-    "entry level": 4,
-    "fastapi": 3,
-    "rest api": 3,
-    "postgresql": 2,
-    "sql": 2,
-    "sqlalchemy": 2,
-    "django": 2,
-    "middle": 2,
-}
 
-        negative_words = {
-    "senior": -7,
-    "lead": -7,
-    "principal": -7,
-    "architect": -7,
-}
-        q = select(Job)
-        jobs = (await s.scalars(q)).all()
-        for job in jobs:
-            score = 0
-            text = f"{job.title}, {job.snippet}".lower()
-            for word, points in positive_words.items():
-                if word in text:
-                    score += points
-            for word, points in negative_words.items():
-                if word in text:
-                    score += points
-            sorted.append((score, job.title, job.company, job.url,job.snippet))
-        return sorted
+
+
+    
+
                        
 async def get_last3():
    
@@ -131,68 +93,6 @@ async def get_last3():
             last3.append(f"Name: {job.title}\n\n---->>>{snp}\n\n---->{job.updated}\n\n------>>>{job.url}")
         return last3
 
-
-
-
-
-        
-
-        
-        
-
-
-    
-
-async def get_new_vacs():
-
-    positive_words = {
-                    "python": 4,
-                    "backend": 4,
-                    "junior": 4,
-                    "entry level": 4,
-                    "fastapi": 3,
-                    "rest api": 3,
-                    "postgresql": 2,
-                    "sql": 2,
-                    "sqlalchemy": 2,
-                    "django": 2,
-                    "middle": 2,
-                    "remote":4
-    }
-    
-    negative_words = {
-                        "senior": -7,
-                        "lead": -7,
-                        "principal": -7,
-                        "architect": -7,
-    }
-    async with as_session() as s:
-        new_vac = []
-        now = datetime.now().date()
-        q = select(Job).where(Job.updated == now)
-        jobs = (await s.scalars(q)).all()
-        
-        for job in jobs:
-            text = f"{job.title}, {job.snippet}".lower()
-            score = 0
-            
-            snp =job.snippet[:250]
-            for word, points in positive_words.items():
-                if word in text:
-                    score += points
-            for word, points in negative_words.items():
-                if word in text:
-                    score += points
-            new_vac.append((score, job.title, job.url, snp))
-            new_vac = [job for job in new_vac if job[0]>= 5]
-        resalt = []
-        for score, title, url, snp in new_vac:
-            resalt.append(f"Name: {title} --- \n\n Description: {snp} ===> \n\nLINK:{url} :::\n\n SCORE: {score}")
-
-            
-            
-        print(f"NEW VACANCIES:", {len(new_vac)})
-        return resalt
 
 
 async def scoring(jobs):
@@ -220,15 +120,19 @@ async def scoring(jobs):
 
     return results
 
-
 async def get_filtred_forai():
     async with as_session() as s:
         filtred = []
         now = datetime.now().date()
         q = select(Job).where(Job.updated == now)
+        
         jobs = (await s.scalars(q)).all()
         res = await scoring(jobs)
         for score,title,url,snippet, jid in res:
+            q = select(AiJob).where(AiJob.job_id == jid)
+            exists = await s.scalar(q)
+            if exists:
+                continue
             if score > 5:
                 filtred.append((score,jid))
         await save_in_ai_table(filtred)
@@ -242,16 +146,16 @@ async def get_new_vac():
         
         results = await scoring(jobs)
         
-        for score,title, url,snp in results:
+        for score,title, url,snp,jid in results:
             if score > 5:
-                new_vac.append((score, title, url, snp))
+                new_vac.append((score, title, url, snp[:250]))
             
            
 
         
         resalt = []
         for score, title, url, snp in new_vac:
-            resalt.append(f"Name: {title} --- \n\n Description: {snp} ===> \n\nLINK:{url} :::\n\n SCORE: {score}")
+            resalt.append(f"Name: {title} --- \n\n Description: {snp[:250]} ===> \n\nLINK:{url} :::\n\n SCORE: {score}")
 
             
             
@@ -259,54 +163,19 @@ async def get_new_vac():
         return resalt
 
 
-@timer_time
-async def get_remote():
+async def get_accepted_vac():
     async with as_session() as s:
-        remote_j = []
-        q = select(Job)
-        jobs = (await s.scalars(q)).all()
-        for job in jobs:
-            if job.location == "Remote":
-                if job.snippet is None:
-                    job.snippet = ""
-                
-                snippet = job.snippet[:125]
-                remote_j.append(f"Name: {job.title} --- Description: {snippet} ===> LINK:{job.url}")
-        
-
+        ac_vac = []
+        q = select(AiJob).options(selectinload(AiJob.job)).where(AiJob.status == "accepted")
+        a_j = (await s.scalars(q)).all()
+        for j in a_j:
             
+            ac_vac.append(f"Name: {j.job.title}\n\nStatus: {j.status}\n\nScores: {j.match_score}\n\n Reason: {j.reason}\n\nMissing Skills: {j.missingskills}\n\nJob URL: {j.job.url}")
+        return ac_vac
 
-        return (remote_j)
 
-async def snippet_score(jobs):
-    results = []
-    for job in jobs:
-        score = 0
-        text = f"{job.snippet}".lower()
-        
+
     
-        for dict_rule in SCORING_RULES["snippet"].values():
-            for word,points in dict_rule.items():
-                if word in text:
-                    score+= points
-        results.append((score,job.id))
-                    
-    return results
-
-async def title_score(jobs):
-    results = []
-    for job in jobs:
-        score = 0
-        text = f"{job.title}".lower()
-        
-    
-        for dict_rule in SCORING_RULES["title"].values():
-            for word,points in dict_rule.items():
-                if word in text:
-                    score+= points
-        results.append((score,job.id))
-                    
-    return results
     
 
 # ============================================================

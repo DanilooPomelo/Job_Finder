@@ -44,6 +44,24 @@ async def timeouts_src(func, *args, **kwargs):
         except (httpx.TimeoutException, httpx.ConnectError, httpx.NetworkError) as e:
                 result = e
                 await asyncio.sleep(t)
-        return result
+    return result
+
+async def retry_func(fnc_name,*args, **kwargs):
+    tryes = [2,4,6]
+    for tr in tryes:
+        try:
+           res = await fnc_name(*args, **kwargs)
+           return res 
+        except (RETRY_DB_ERR) as e:
+            res = e
+            await asyncio.sleep(tr)
+    return res
 
 
+
+RETRY_DB_ERR = (psycopg.errors.ConnectionException,psycopg.errors.SqlclientUnableToEstablishSqlconnection,psycopg.errors.ConnectionDoesNotExist,psycopg.errors.ConnectionFailure,psycopg.errors.CannotConnectNow,psycopg.errors.AdminShutdown,psycopg.errors.CrashShutdown,psycopg.errors.ConnectionTimeout,psycopg.errors.SerializationFailure,psycopg.errors.DeadlockDetected,psycopg.errors.LockNotAvailable,psycopg.errors.TooManyConnections,
+                    openai.APIConnectionError,
+    openai.APITimeoutError,
+    openai.RateLimitError,
+    openai.InternalServerError,
+)

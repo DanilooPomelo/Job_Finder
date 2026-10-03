@@ -35,7 +35,6 @@ async def get_adzuna(search):
         try:
             print("ADZUNA START")
     
-    #search = get_for_search()
             page = 1
             key = os.getenv("ADZUNA_API_KEY")
             app_id = os.getenv("ADZUNA_ID")

@@ -11,7 +11,7 @@ def keyboardall():
     reply_kb = ReplyKeyboardBuilder()
     reply_kb.add(
         types.KeyboardButton(text="Today Vacancy"),
-        types.KeyboardButton(text="New vacancies"),
+        types.KeyboardButton(text="Accepted Vacancies"),
 
 )
     reply_kb.adjust(2)
@@ -19,19 +19,19 @@ def keyboardall():
     
     return reply_kb.as_markup(resize_keyboard=True)
 
-def pagination_keyboard(page:int, total_pages:int):
+def pagination_keyboard(page:int, total_pages:int, section):
     kb = InlineKeyboardBuilder()
     if page > 1:
         kb.button(
             text="⬅️ Back",
-            callback_data=f"page:{page - 1}"
+            callback_data=f"{section}:page:{page - 1}"
         )
 
     
     if page < total_pages:
         kb.button(
             text="Next ➡️",
-            callback_data=f"page:{page + 1}"
+            callback_data=f"{section}:page:{page + 1}"
         )
 
     kb.adjust(2)
@@ -49,29 +49,6 @@ next_back = InlineKeyboardMarkup(
 
 )
 
-#inline_kb = InlineKeyboardMarkup(
-    #inline_keyboard=[
-       # [
-        #    InlineKeyboardButton(
-        #        text="Start CV for u",
-        #        callback_data="btnclick"
-        #    ),
-        #    InlineKeyboardButton(
-        #        text="get remote Vacancy",
-        #        callback_data="remotevacancy"
-        #    ),
-        #    InlineKeyboardButton(
-        #        text="Today Vacancy",
-        #        callback_data="get_today"
-        #    ),
-        #    InlineKeyboardButton(
-        #        text="Get last 3-dayd",
-        #        callback_data="last_3_days_vac"
-        #    )
-#
-#        ]
-#    ]
-#)
 
 
 class StartCV(StatesGroup):

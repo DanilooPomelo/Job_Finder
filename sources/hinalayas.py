@@ -17,8 +17,7 @@ async def get_jobs_himalay(search):
     try:
         print("HIMALAY START")
     
-    #search = get_for_search()
-    #encode_search = quote(search)
+    
 
         url = "https://himalayas.app/jobs/api/search"
 

@@ -20,4 +20,3 @@ async def get_db():
     async with engine.connect() as conn:
        yield conn
 
-#asyncio.run(get_db(), loop_factory=lambda: asyncio.SelectorEventLoop(selectors.SelectSelector()))

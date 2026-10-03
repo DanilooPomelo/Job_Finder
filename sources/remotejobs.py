@@ -10,7 +10,6 @@ from backend.database import as_session
 async def get_jobs_remotejobs(search):
     try:
         
-    #search = get_for_search()
 
 
         url = "https://remotejobs.org/api/v1/jobs"

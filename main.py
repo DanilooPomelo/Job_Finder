@@ -1,5 +1,5 @@
 import asyncio
-from backend.logic import  get_remote, get_new_vac, sort_by_need, get_filtred_forai
+from backend.logic import   get_new_vac, get_filtred_forai
 from sources.adzuna import  get_adzuna
 from sources.arbeitnow import get_arbeitnow
 from sources.jooble import get_jooble_jobs
@@ -15,8 +15,8 @@ async def start_app():
     await asyncio.gather(
         autostart(),
         main(),
-        get_filtred_forai(),
-        data_for_check()
+        
+
     )
 
         

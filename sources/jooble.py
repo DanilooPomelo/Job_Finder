@@ -19,13 +19,11 @@ async def get_jooble_jobs(search):
         key = os.getenv("JOOBLE_API_KEY")
         url = f"https://jooble.org/api/{key}"
 
-    #search = get_for_search()
-    #encode_search = quote(search)
+    
 
 
         payload = {
     "keywords": search,
-    #"keywords": f"{search} AND (\"1 day ago\" OR \"24 hours ago\" OR \"today\")",
     "location": "",
     "page": 1,
     "ResultOnPage": 100,
@@ -45,7 +43,6 @@ async def get_jooble_jobs(search):
             else:
                 data = response.json()
                 await jooble_adaptor(data['jobs'])
-                #payload['page'] = 2
                 total_count = data['totalCount']
                 for page in paggination(total_count, 100):
                     payload["page"] = page
@@ -79,6 +76,6 @@ async def jooble_adaptor(jobs):
                 }
             joobler.append(jobles)
         await save_in_db(joobler)
-        for job in joobler:
-            print(job['title'],"---" , job['updated'])
+        #for job in joobler:
+        #    print(job['title'],"---" , job['updated'])
 
